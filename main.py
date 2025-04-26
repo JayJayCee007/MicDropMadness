@@ -18,7 +18,7 @@ player_button_rects = [
 
 # New button rectangle for states 2 and up (at coordinates (317, 480), width 293, height 100)
 new_button_rect = pygame.Rect(317, 480, 293, 100)
-new_button_rect2 = pygame.Rect(40, 165, 330, 25)
+new_button_rect2 = pygame.Rect(40, 165, 330, 30)
 
 # Game state
 state = 7  # Start at the home screen
@@ -151,6 +151,10 @@ while running:
 
     elif state == 8:
         # Song Selection (State 8)
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if new_button_rect2.collidepoint(event.pos):
+                state = 9  # Transition to state 9
+
         if new_button_rect2.collidepoint(mouse_x, mouse_y):
             # Only change image if we are in state 8 and hovering over the button
             screen.blit(song_selection_hover_image, (0, 0))  # Change to SongSelection.png when hovered
@@ -162,7 +166,11 @@ while running:
             # Enlarge background portion when not hovering (optional, or you can skip this step if you don't want it)
             enlarged_background = enlarge_image_portion(song_selection_image, new_button_rect2, factor=1.1)
             screen.blit(enlarged_background, (0, 0))  # Blit the enlarged portion of the background
-
+    
+    elif state == 9:
+        # FromTheStart Player 1 (State 9)
+        screen.blit(fromTheStart_image, (0, 0))
+    
     elif state in [2, 3, 4]:
         # Fade Transition for States 2, 3, 4
         if not fade_done[state]:
