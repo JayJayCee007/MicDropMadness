@@ -1,5 +1,5 @@
 import pygame
-
+from ai import getText
 pygame.init()
 
 # Screen setup
@@ -18,28 +18,29 @@ player_button_rects = [
 
 # New button rectangle for states 2 and up (at coordinates (317, 480), width 293, height 100)
 new_button_rect = pygame.Rect(317, 480, 293, 100)
-new_button_rect2 = pygame.Rect(40, 165, 330, 30)
+new_button_rect2 = pygame.Rect(40, 165, 330, 25)
 
 # Game state
 state = 1  # Start at the home screen
 running = True
 
-# Load and scale all images
-homePage = pygame.transform.scale(pygame.image.load('lockdownHome.png'), (920, 600))
-player_select_image = pygame.transform.scale(pygame.image.load('playerSelection.png'), (920, 600))
-image_state_2 = pygame.transform.scale(pygame.image.load('Endscreen1Wins.png'), (920, 600))
-image_state_3 = pygame.transform.scale(pygame.image.load('Endscreen2Wins.png'), (920, 600))
-image_state_4 = pygame.transform.scale(pygame.image.load('EndscreenBothWin.png'), (920, 600))  # State 4 Image
-image_3_player_1_win = pygame.transform.scale(pygame.image.load('3Player1Wins.png'), (920, 600))
-image_3_player_2_win = pygame.transform.scale(pygame.image.load('3Player2Wins.png'), (920, 600))
-image_3_player_3_win = pygame.transform.scale(pygame.image.load('3Player3Wins.png'), (920, 600))
-image_3_player_no_winner = pygame.transform.scale(pygame.image.load('3PlayerNoWinner.png'), (920, 600))
-image_blank = pygame.transform.scale(pygame.image.load('EndScreenBlank.png'), (920, 600))
+# Load and scale all images from the static folder
+homePage = pygame.transform.scale(pygame.image.load('static/HomePage.png'), (920, 600))
+player_select_image = pygame.transform.scale(pygame.image.load('static/Player Selection.png'), (920, 600))
+image_state_2 = pygame.transform.scale(pygame.image.load('static/Endscreen1Wins.png'), (920, 600))
+image_state_3 = pygame.transform.scale(pygame.image.load('static/Endscreen2Wins.png'), (920, 600))
+image_state_4 = pygame.transform.scale(pygame.image.load('static/EndscreenBothWin.png'), (920, 600))  # State 4 Image
+image_3_player_1_win = pygame.transform.scale(pygame.image.load('static/3Player1Wins.png'), (920, 600))
+image_3_player_2_win = pygame.transform.scale(pygame.image.load('static/3Player2Wins.png'), (920, 600))
+image_3_player_3_win = pygame.transform.scale(pygame.image.load('static/3Player3Wins.png'), (920, 600))
+image_3_player_no_winner = pygame.transform.scale(pygame.image.load('static/3PlayerNoWinner.png'), (920, 600))
+image_blank = pygame.transform.scale(pygame.image.load('static/EndScreenBlank.png'), (920, 600))
 
 # New state 8 image (SongSelectionNoImage.png)
-song_selection_image = pygame.transform.scale(pygame.image.load('SongSelectionNoImage.png'), (920, 600))
-song_selection_hover_image = pygame.transform.scale(pygame.image.load('SongSelection.png'), (920, 600))
-fromTheStart_image = pygame.transform.scale(pygame.image.load('FromTheStartPlayer1.png'), (920, 600))
+song_selection_image = pygame.transform.scale(pygame.image.load('static/SongSelectionNoImage.png'), (920, 600))
+song_selection_hover_image = pygame.transform.scale(pygame.image.load('static/SongSelection.png'), (920, 600))
+fromTheStart_image = pygame.transform.scale(pygame.image.load('static/FromTheStartPlayer1.png'), (920, 600))
+fromTheStart_image2 = pygame.transform.scale(pygame.image.load('static/FromTheStartPlayer2.png'), (920, 600))
 
 # Function to enlarge a portion of an image
 def enlarge_image_portion(image, rect, factor=1.1):
@@ -87,6 +88,11 @@ transition_time = 0  # The time when the transition happens
 transition_delay = 500  # Delay in milliseconds (e.g., 500ms = 0.5 seconds)
 can_click_buttons = True  # A flag to determine if buttons are clickable
 
+# Add a variable to store the AI response
+ai_response1 = ""
+ai_response2 = ""
+
+
 # Main loop
 while running:
     mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -131,6 +137,66 @@ while running:
                 if new_button_rect.collidepoint(event.pos):
                     state = 1  # Go back to state 1 (main menu)
 
+        # Handle State 8 (Song Selection)
+        elif state == 8:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if new_button_rect2.collidepoint(event.pos):
+                    state = 9  # Transition to a new state (e.g., State 9) for FromTheStartPlayer1
+
+        elif state == 9:
+            # Display the FromTheStartPlayer1 image
+            screen.blit(fromTheStart_image, (0, 0))
+            
+            # Render the frame before starting the recording
+            pygame.display.flip()
+            
+            # Call getText only once and store the result
+            if ai_response1 == "":
+                ai_response1 = getText()  # Call getText only the first time State 9 is entered
+            
+            # Render the stored AI response on the screen
+            font = pygame.font.Font(None, 36)  # Use a default font with size 36
+            rendered_text = font.render(ai_response1, True, (255, 255, 255))  # White text color
+            screen.blit(rendered_text, (50, 500))  # Display the text at the bottom of the screen
+
+            # Add a button to transition to Player 2 (State 10)
+            next_button_rect = pygame.Rect(750, 500, 150, 50)  # Button for "Next Player"
+            pygame.draw.rect(screen, (0, 255, 0), next_button_rect)  # Green button
+            next_text = font.render("Next Player", True, (0, 0, 0))  # Black text
+            screen.blit(next_text, (next_button_rect.x + 10, next_button_rect.y + 10))
+
+            # Check for button click to transition to Player 2
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if next_button_rect.collidepoint(event.pos):
+                    state = 10  # Transition to Player 2 (State 10)
+
+        elif state == 10:
+            # Display the FromTheStartPlayer1 image (reuse for Player 2)
+            screen.blit(fromTheStart_image, (0, 0))
+            
+            # Render the frame before starting the recording
+            pygame.display.flip()
+            
+            # Call getText only once and store the result
+            if ai_response2 == "":
+                ai_response2 = getText()  # Call getText only the first time State 10 is entered
+            
+            # Render the stored AI response on the screen
+            font = pygame.font.Font(None, 36)  # Use a default font with size 36
+            rendered_text = font.render(ai_response2, True, (255, 255, 255))  # White text color
+            screen.blit(rendered_text, (50, 500))  # Display the text at the bottom of the screen
+
+            # Add a button to transition to results or next state
+            finish_button_rect = pygame.Rect(750, 500, 150, 50)  # Button for "Finish"
+            pygame.draw.rect(screen, (255, 0, 0), finish_button_rect)  # Red button
+            finish_text = font.render("Finish", True, (0, 0, 0))  # Black text
+            screen.blit(finish_text, (finish_button_rect.x + 10, finish_button_rect.y + 10))
+
+            # Check for button click to transition to results or next state
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if finish_button_rect.collidepoint(event.pos):
+                    state = 11  # Transition to results or next state
+
     # Drawing for different states
     if state == 1:
         # Home Page (State 1)
@@ -151,26 +217,107 @@ while running:
 
     elif state == 8:
         # Song Selection (State 8)
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            if new_button_rect2.collidepoint(event.pos):
-                state = 9  # Transition to state 9
-
         if new_button_rect2.collidepoint(mouse_x, mouse_y):
-            # Only change image if we are in state 8 and hovering over the button
             screen.blit(song_selection_hover_image, (0, 0))  # Change to SongSelection.png when hovered
-            # Enlarge background portion when hovering over the new button area
-            enlarged_background = enlarge_image_portion(song_selection_hover_image, new_button_rect2, factor=1.1)
-            screen.blit(enlarged_background, (0, 0))  # Blit the enlarged portion of the background
         else:
             screen.blit(song_selection_image, (0, 0))  # Default Song Selection image
-            # Enlarge background portion when not hovering (optional, or you can skip this step if you don't want it)
-            enlarged_background = enlarge_image_portion(song_selection_image, new_button_rect2, factor=1.1)
-            screen.blit(enlarged_background, (0, 0))  # Blit the enlarged portion of the background
-    
+
     elif state == 9:
-        # FromTheStart Player 1 (State 9)
+        # Display the FromTheStartPlayer1 image
         screen.blit(fromTheStart_image, (0, 0))
-    
+        
+        # Render the frame before starting the recording
+        pygame.display.flip()
+        
+        # Call getText only once and store the result
+        if ai_response1 == "":
+            ai_response1 = getText()  # Call getText only the first time State 9 is entered
+        
+        # Render the stored AI response on the screen
+        font = pygame.font.Font(None, 36)  # Use a default font with size 36
+        rendered_text = font.render(ai_response1, True, (255, 255, 255))  # White text color
+        screen.blit(rendered_text, (50, 500))  # Display the text at the bottom of the screen
+
+        # Add a button to transition to Player 2 (State 10)
+        next_button_rect = pygame.Rect(750, 500, 150, 50)  # Button for "Next Player"
+        pygame.draw.rect(screen, (0, 255, 0), next_button_rect)  # Green button
+        next_text = font.render("Next Player", True, (0, 0, 0))  # Black text
+        screen.blit(next_text, (next_button_rect.x + 10, next_button_rect.y + 10))
+
+        # Check for button click to transition to Player 2
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if next_button_rect.collidepoint(event.pos):
+                state = 10  # Transition to Player 2 (State 10)
+
+    elif state == 10:
+        # Display the FromTheStartPlayer1 image (reuse for Player 2)
+        screen.blit(fromTheStart_image2, (0, 0))
+        
+        # Render the frame before starting the recording
+        pygame.display.flip()
+        
+        # Call getText only once and store the result
+        if ai_response2 == "":
+            ai_response2 = getText()  # Call getText only the first time State 10 is entered
+        
+        # Render the stored AI response on the screen
+        font = pygame.font.Font(None, 36)  # Use a default font with size 36
+        rendered_text = font.render(ai_response2, True, (255, 255, 255))  # White text color
+        screen.blit(rendered_text, (50, 500))  # Display the text at the bottom of the screen
+
+        # Add a button to transition to results or next state
+        finish_button_rect = pygame.Rect(750, 500, 150, 50)  # Button for "Finish"
+        pygame.draw.rect(screen, (255, 0, 0), finish_button_rect)  # Red button
+        finish_text = font.render("Finish", True, (0, 0, 0))  # Black text
+        screen.blit(finish_text, (finish_button_rect.x + 10, finish_button_rect.y + 10))
+
+        # Check for button click to transition to results or next state
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if finish_button_rect.collidepoint(event.pos):
+                print("ai_response2[10]: " + ai_response2[10])
+                print("ai_response1[10]: " + ai_response1[10])
+            
+                if ai_response2[10] > ai_response1[10]:
+                    # If the responses are the same, transition to state 11
+                    state = 11
+                elif ai_response2[10] < ai_response1[10]:
+                    # If the responses are different, transition to state 12
+                    state = 12
+                else:
+                    state = 13   
+    elif state == 11:
+        # Display the Player 1 Wins screen
+        screen.blit(image_state_2, (0, 0))  # Use the Player 1 Wins image
+        font = pygame.font.Font(None, 36)
+        winner_text = font.render("Player 1 Wins!", True, (255, 255, 255))  # White text
+        screen.blit(winner_text, (350, 500))  # Display the text at the bottom of the screen
+
+        # Add a "Play Again" button using new_button_rect
+        pygame.draw.rect(screen, (0, 255, 0), new_button_rect)  # Green button
+        play_again_text = font.render("Play Again", True, (0, 0, 0))  # Black text
+        screen.blit(play_again_text, (new_button_rect.x + 10, new_button_rect.y + 10))
+
+        # Check for button click to play again
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if new_button_rect.collidepoint(event.pos):
+                state = 1  # Transition back to the main menu
+    elif state == 12:
+        # Display the Player 2 Wins screen
+        screen.blit(image_state_3, (0, 0))  # Use the Player 2 Wins image
+        font = pygame.font.Font(None, 36)
+        winner_text = font.render("Player 2 Wins!", True, (255, 255, 255))  # White text
+        screen.blit(winner_text, (350, 500))  # Display the text at the bottom of the screen
+
+        # Add a "Play Again" button using new_button_rect
+        pygame.draw.rect(screen, (0, 255, 0), new_button_rect)  # Green button
+        play_again_text = font.render("Play Again", True, (0, 0, 0))  # Black text
+        screen.blit(play_again_text, (new_button_rect.x + 10, new_button_rect.y + 10))
+
+        # Check for button click to play again
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if new_button_rect.collidepoint(event.pos):
+                state = 1  # Transition back to the main menu
+
     elif state in [2, 3, 4]:
         # Fade Transition for States 2, 3, 4
         if not fade_done[state]:
