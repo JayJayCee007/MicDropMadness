@@ -21,7 +21,7 @@ new_button_rect = pygame.Rect(317, 480, 293, 100)
 new_button_rect2 = pygame.Rect(40, 165, 330, 30)
 
 # Game state
-state = 7  # Start at the home screen
+state = 1  # Start at the home screen
 running = True
 
 # Load and scale all images
