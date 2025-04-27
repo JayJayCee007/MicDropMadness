@@ -522,5 +522,4 @@ while running:
             screen.blit(fade_images[state][1], (0, 0))
 
     pygame.display.flip()
-
 pygame.quit()
